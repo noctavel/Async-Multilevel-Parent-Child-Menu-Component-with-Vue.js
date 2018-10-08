@@ -61,7 +61,7 @@ var drop = Vue.component('item', {
     methods: {
         getChildren: async function (id) {
             //this.children = await $.get(this.api, { ID: id });
-            this.children = list.filter(child => child.pai_id == id);
+            this.children = list.filter(child => child.parent_id == id);
         }
     },
 });
