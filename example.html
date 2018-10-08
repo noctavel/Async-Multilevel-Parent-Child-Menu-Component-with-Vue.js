@@ -46,7 +46,7 @@ var drop = Vue.component('item', {
         return { children: [], loading: false}
     },
     created: async function () {
-        if (this.api) this.model = await this.getChildren(null);
+        if (!this.model) this.model = await this.getChildren(null);
     },
     template: `<li class="dropdown-submenu" >
                   <a class="dropper" v-on:mouseover="getChildren(model.id)" tabindex="-1" href="#"> {{model.name}} </a>
