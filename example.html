@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.2.6/vue.js"></script>
+<style>
+.dropdown-submenu {
+    position: relative;
+}
+.dropdown-submenu .dropdown-menu {
+    top: 0;
+    left: 100%;
+    margin-top: -1px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="dropdown">
+    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown"> Example <span class="caret"></span></button>
+    <ul class="dropdown-menu"><item :model="{ id: null, name: 'root' }"></item></ul>
+  </div>
+</div>
+<script>
+  document.addEventListener("mouseover", function (ev) {
+    if (ev.target.matches("a")) {
+      var a = $(ev.target);
+      let ul = a.next('ul');
+
+      if (ul.children().length == 0) ul.hide();
+      else ul.toggle();
+
+      ev.preventDefault();
+      ev.stopPropagation();
+    }
+  });
+const list = [{ parent_id: null, id:1, name: 'child1' }, { parent_id: 1, id:2, name: 'subchild1' }, { parent_id: 1, id:2, name: 'subchild2' }, { parent_id: 2, id:5, name: 'sub_subchild2' },];
+
+var drop = Vue.component('item', {
+    props: ['model', 'api'],
+    data: function () {
+        return { children: [] }
+    },
+    created: async function () {
+        if (this.api) this.model = await this.getChildren(null);
+    },
+    template: `<li class="dropdown-submenu" >
+                    <a class="dropper" v-on:mouseover="getChildren(model.id)" tabindex="-1" href="#"> {{model.name}} <span class="caret"></span></a>
+                    <ul v-if="children" class="dropdown-menu">
+                        <item v-for="(child,index) in children" :key="index" :model="child"></item>
+                    </ul>
+                </li>`,
+    watch: {
+        children: function () {
+            this.model.children = this.children;
+        }
+    },
+    methods: {
+        getChildren: async function (id) {
+            //this.children = await $.get(this.api, { ID: id });
+            this.children = list.filter(child => child.pai_id == id);
+        }
+    },
+});
+
+new Vue({
+  el:".container",
+});
+</script>
+
+</body>
+</html>
