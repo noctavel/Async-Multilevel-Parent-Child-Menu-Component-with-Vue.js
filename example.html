@@ -2,6 +2,7 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -42,17 +43,18 @@ const list = [{ parent_id: null, id:1, name: 'child1' }, { parent_id: 1, id:2, n
 var drop = Vue.component('item', {
     props: ['model', 'api'],
     data: function () {
-        return { children: [] }
+        return { children: [], loading: false}
     },
     created: async function () {
         if (this.api) this.model = await this.getChildren(null);
     },
     template: `<li class="dropdown-submenu" >
-                    <a class="dropper" v-on:mouseover="getChildren(model.id)" tabindex="-1" href="#"> {{model.name}} <span class="caret"></span></a>
-                    <ul v-if="children" class="dropdown-menu">
-                        <item v-for="(child,index) in children" :key="index" :model="child"></item>
-                    </ul>
-                </li>`,
+                  <a class="dropper" v-on:mouseover="getChildren(model.id)" tabindex="-1" href="#"> {{model.name}} </a>
+                  <ul v-if="children" class="dropdown-menu">
+                      <item v-if="children.length > 0 " v-for="(child,index) in children" :key="index" :model="child"></item>
+                      <span v-if="loading" class="fa fa-spin fa-spinner center"></span>
+                  </ul>
+              </li>`,
     watch: {
         children: function () {
             this.model.children = this.children;
@@ -60,9 +62,22 @@ var drop = Vue.component('item', {
     },
     methods: {
         getChildren: async function (id) {
-            //this.children = await $.get(this.api, { ID: id });
-            this.children = list.filter(child => child.parent_id == id);
-        }
+          if (this.children && this.children.length == 0) {
+              this.loading = true;
+              if (this.api) {
+                  this.children = await $.get(this.api, { ID: id });
+                  if (this.children.length == 0) this.children = undefined;
+                  this.loading = false;
+              }
+              else { //just for testing
+                  setTimeout(() => {
+                      this.children = list.filter(child => child.parent_id == id);
+                      if (this.children.length == 0) this.children = undefined;
+                      this.loading = false;
+                  }, 500);
+              }
+          }
+      }
     },
 });
 
