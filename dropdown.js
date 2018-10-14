@@ -14,16 +14,16 @@ document.addEventListener("mouseover", function (ev) {
 Vue.component('item', {
     props: ['model', 'api'],
     data: function () {
-        return { children: [], loading: false}
+        return { children: []}
     },
     created: async function () {
         if (!this.model) this.model = await this.getChildren(null);
     },
     template: `<li class="dropdown-submenu" >
-                  <a class="dropper" v-on:mouseover="getChildren(model.id)" tabindex="-1" href="#"> {{model.name}} </a>
+                  <a class="dropper" v-on:mouseover="getChildren(model)" tabindex="-1" href="#"> {{model.name}} </a>
                   <ul v-if="children" class="dropdown-menu">
-                      <item v-if="children.length > 0 " v-for="(child,index) in children" :key="index" :model="child"></item>
-                      <div v-if="loading" class="text-center"><i class="fa fa-spin fa-spinner "></i></div>
+                      <item v-if="children.length > 0 " v-for="child in children" :key="child.id" :model="child"></item>
+                      <div v-if="children.length == 0" class="text-center"><i class="fa fa-spin fa-spinner "></i></div>
                   </ul>
               </li>`,
     watch: {
@@ -32,19 +32,16 @@ Vue.component('item', {
         }
     },
     methods: {
-        getChildren: async function (id) {
+        getChildren: async function (parent) {
           if (this.children && this.children.length == 0) {
-              this.loading = true;
               if (this.api) {
-                  this.children = await $.get(this.api, { ID: id });
+                  this.children = await $.get(this.api, { ID: parent.id });
                   if (this.children.length == 0) this.children = undefined;
-                  this.loading = false;
               }
               else { //just for testing
                   setTimeout(() => {
-                      this.children = list.filter(child => child.parent_id == id);
+                      this.children = list.filter(child => child.parent_id == parent.id);
                       if (this.children.length == 0) this.children = undefined;
-                      this.loading = false;
                   }, 500);
               }
           }
