@@ -13,10 +13,8 @@ document.addEventListener("mouseover", function (ev) {
 
 Vue.component('item', {
     props: ['model', 'api'],
-    data: function () {
-        return { children: []}
-    },
-    created: async function () {
+    data() { return { children: []}},
+    async created () {
         if (!this.model) this.model = await this.getChildren(null);
     },
     template: `<li class="dropdown-submenu" >
@@ -27,12 +25,10 @@ Vue.component('item', {
                   </ul>
               </li>`,
     watch: {
-        children: function () {
-            this.model.children = this.children;
-        }
+        children() { this.model.children = this.children;}
     },
     methods: {
-        getChildren: async function (parent) {
+        async getChildren(parent) {
           if (this.children && this.children.length == 0) {
               if (this.api) {
                   this.children = await $.get(this.api, { ID: parent.id });
